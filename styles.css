@@ -19,7 +19,7 @@
     
     /* Colores Semánticos */
     --primary: #2563eb;       /* Blue 600 */
-    --accent: #3b82f6;        /* Blue 500 */
+    --accent: #2563eb;        /* Blue 600 */
     --danger: #ef4444;        /* Red 500 */
     --success: #10b981;       /* Emerald 500 */
     --warning: #f59e0b;       /* Amber 500 */
@@ -56,7 +56,7 @@
     
     /* Colores Semánticos (Ajustados para brillo en oscuro) */
     --primary: #3b82f6;       /* Blue 500 */
-    --accent: #60a5fa;        /* Blue 400 */
+    --accent: #3b82f6;        /* Blue 500 */
     --danger: #f87171;        /* Red 400 */
     --success: #34d399;       /* Emerald 400 */
     --warning: #fbbf24;       /* Amber 400 */
@@ -955,4 +955,5 @@ input[readonly] {
     padding: 10px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+
 }
