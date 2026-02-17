@@ -139,7 +139,6 @@ body {
 .logo-img {
     width: 30px;
     height: 30px;
-    border-radius: 50%;
 }
 
 .status-dot {
@@ -148,7 +147,6 @@ body {
     border-radius: 50%;
     background-color: var(--success);
     box-shadow: 0 0 8px rgba(56, 161, 105, 0.6);
-    margin-left: 10px;
     transition: all 0.3s ease;
     display: inline-block;
 }
@@ -296,7 +294,7 @@ body {
     color: white;
     font-size: 1.2rem;
     cursor: pointer;
-    padding: 8px;
+    padding: 5px;
     border-radius: 50%;
     transition: background 0.2s;
 }
@@ -360,11 +358,11 @@ body {
 .panel {
     display: none;
     background: var(--bg-card);
-    padding: 15px;
-    border-radius: 0 0 8px 8px;
+    padding: 10px;
+    border-radius: 8px 8px 8px 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    min-height: 500px;
-    padding-bottom: 80px;
+    min-height: 200px;
+
     animation: fadeIn 0.25s ease-out;
     margin-top: 0;
     border: 1px solid var(--border-color);
