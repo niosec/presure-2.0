@@ -13,7 +13,7 @@
     --text-muted: #94a3b8;    /* Slate 400 */
     
     /* UI Elements */
-    --border-color: #e2e8f0;
+    --border-color: #cbd5e0; /* Slate 300 */
     --input-bg: #ffffff;
     --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     
@@ -432,7 +432,7 @@ input[type="number"], input[type="text"], select, textarea {
     width: 100%;
     padding: 7px 10px;
     box-sizing: border-box;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     font-family: inherit;
     font-size: 13px;
@@ -895,8 +895,22 @@ footer {
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 
-tbody tr { cursor: grab; }
-tbody tr:active { cursor: grabbing; }
+/* --- Drag & Drop Cursors (Solo B1 y Editor) --- */
+/* Aplicar cursor solo a las tablas permitidas */
+#b1-body tr,
+#table-mat tbody tr,
+#table-mo tbody tr,
+#table-eq tbody tr { 
+    cursor: grab; 
+}
+
+/* Estado activo solo para las tablas permitidas */
+#b1-body tr:active,
+#table-mat tbody tr:active,
+#table-mo tbody tr:active,
+#table-eq tbody tr:active { 
+    cursor: grabbing; 
+}
 
 /* --- Conflict Modal --- */
 .conflict-options {
