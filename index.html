@@ -28,7 +28,7 @@
 </head>
 <body>
 
-    <!-- Header combinado (v2.0 + botones de acción v1.3) -->
+    <!-- Header combinado (v2.0) -->
     <header class="app-header">
         <div class="header-content">
             <div class="logo-area">
@@ -37,32 +37,47 @@
                 <span id="save-indicator" class="status-dot" title="Estado de guardado"></span>
             </div>
             <div class="header-actions">
-                <button class="btn btn-secondary" onclick="openConfigModal()" title="Configuración"><i class="fas fa-cog"></i></button>
+                <button id="theme-toggle" class="icon-btn"><i class="fas fa-moon"></i> <!-- Modo oscuro y claro -->
+                </button>
+                <button class="btn btn-secondary" onclick="openConfigModal()" title="Configuración"><i class="fas fa-cog"></i> Configuración</button>
                 <button class="btn btn-secondary" onclick="document.getElementById('fileProject').click()"><i class="fas fa-folder-open"></i> Abrir</button>
                 <button class="btn btn-success" onclick="openSaveOptionsModal()"><i class="fas fa-save"></i> Guardar</button>
-                <button class="btn btn-info" onclick="openReportModal()" title="Generar Reportes"><i class="fas fa-print"></i></button>
-                <button class="btn btn-danger" onclick="openDeleteModal()" title="Opciones de Borrado"><i class="fas fa-trash-alt"></i></button>
-                <button id="theme-toggle" class="icon-btn">
-                    <i class="fas fa-moon"></i>
-                </button>
+                <button class="btn btn-info" onclick="openReportModal()" title="Generar Reportes"><i class="fas fa-print"></i> Reportes</button>
+                <button class="btn btn-danger" onclick="openDeleteModal()" title="Opciones de Borrado"><i class="fas fa-trash-alt"></i> Borrar</button>
+        
                 <button id="install-btn" class="install-btn hidden">
-                    <i class="fas fa-download" style="color: var(--text-primary);"></i> Instalar
+                    <i class="fas fa-download"></i> Instalar
                 </button>
                 <input type="file" id="fileProject" accept=".json,application/json,text/json,text/plain" style="display:none" onchange="loadProjectJSON(this)">
             </div>
         </div>
     </header>
 
+    <!-- Navegación -->
+    <nav class="app-nav">
+        <button class="nav-item tab active" onclick="switchTab('b1')">
+            <div class="nav-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+            <span class="nav-label">Presu</span>
+        </button>
+            
+        <button class="nav-item tab" onclick="switchTab('items')">
+                <div class="nav-icon"><i class="fas fa-database"></i></div>
+                <span class="nav-label">Banco</span>
+        </button>
+            
+        <button class="nav-item tab" onclick="switchTab('db')">
+                <div class="nav-icon"><i class="fas fa-cubes"></i></div>
+                <span class="nav-label">Insumos</span>
+        </button>
+            
+        <button class="nav-item tab" onclick="switchTab('calc')">
+                <div class="nav-icon"><i class="fas fa-calculator"></i></div>
+                <span class="nav-label">Calcu</span>
+        </button>
+    </nav>
+
     <!-- Contenedor principal con todos los paneles -->
     <div class="container">
-        
-        <!-- Tabs -->
-        <div class="tabs">
-            <div class="tab active" onclick="switchTab('b1')" title="Elabore su presupuesto de obra">Presupuesto</div>
-            <div class="tab" onclick="switchTab('items')" title="Base de datos de Items">Banco</div>
-            <div class="tab" onclick="switchTab('db')" title="Base de datos de Insumos">Insumos</div>
-            <div class="tab" onclick="switchTab('calc')" title="Calculadora de Materiales"><i class="fas fa-calculator"></i></div>
-        </div>
 
         <!-- Panel Presupuesto (B1) -->
         <div id="panel-b1" class="panel active">
@@ -180,10 +195,23 @@
                         <div id="calc-search-results" style="display:none; position:absolute; top:100%; left:0; width:100%; max-height:200px; overflow-y:auto; background:var(--bg-card); border:1px solid var(--border-color); border-radius:0 0 6px 6px; z-index:100; box-shadow:var(--shadow);"></div>
                     </div>
 
-                    <div style="flex: 1.5; min-width:180px; background:var(--bg-card-alt); padding:8px 12px; border-radius:6px; border:1px solid var(--border-color); height:38px; display:flex; flex-direction:column; justify-content:center;">
-                        <div id="calc-selected-name" style="font-weight:700; color:var(--primary); font-size:0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">- Seleccione ítem -</div>
-                        <div style="font-size:0.75rem; color:var(--text-secondary);">Unidad: <span id="calc-selected-unit" style="font-weight:600;">-</span></div>
+                    <div style="flex: 2; min-width:200px; background:var(--bg-card); padding:8px 12px; border-radius:6px; border:1px solid var(--border-color); display:flex; flex-wrap:wrap; align-items:center; gap:5px; overflow:hidden;">
+                        <div id="calc-selected-name" style="flex:1 1 auto; min-width:0; font-weight:700; color:var(--text-primary); font-size:0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            - Seleccione ítem -                            
+                        </div>
+                        <div style="font-size:0.75rem; color:var(--text-secondary); display:flex; gap:5px; white-space: nowrap;">
+                            Unidad: <span id="calc-selected-unit" style="font-weight:600;">-</span>
+                        </div>
                     </div>
+
+                    <style>
+                    @media (max-width: 400px) {
+                        #calc-selected-name {
+                            flex: 1 1 100% !important; /* Ocupa toda la fila */
+                            white-space: normal !important; /* Opcional: permite que el texto del nombre se envuelva en varias líneas */
+                        }
+                    }
+                    </style>
 
                     <div style="width:120px;">
                         <label class="font-bold" style="display:block; margin-bottom:4px; color:var(--success); font-size:0.85rem;">2. Cant. Obra:</label>
@@ -469,23 +497,32 @@
         <div id="panel-db" class="panel">
             <div style="margin-bottom:20px;">
                 <h2 style="margin:0 0 12px 0; color:var(--text-primary); font-size:1.5rem;">Gestión de Insumos</h2>
-                <div style="background:var(--bg-card-alt); padding:15px; border:1px solid var(--border-color); border-radius:6px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                    <strong style="color:var(--text-secondary);"><i class="fas fa-file-upload"></i> Carga Masiva:</strong>
-                    <input type="file" id="dbFile" accept=".xlsx,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv" style="flex-grow: 1; max-width: 200px;">
-                    <select id="dbImportType" style="padding: 7px 10px; border-radius:4px; border:1px solid var(--border-color);">
+                <div class="bulk-upload-container">
+                    <strong class="bulk-upload-label">
+                        <i class="fas fa-file-upload"></i> Carga Masiva:
+                    </strong>
+                    
+                    <input type="file" id="dbFile" 
+                        accept=".xlsx,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv" 
+                        class="bulk-file-input">
+                        
+                    <select id="dbImportType" class="bulk-type-select">
                         <option value="materiales">Materiales</option>
                         <option value="mano_obra">Mano de Obra</option>
                         <option value="equipos">Equipos</option>
                     </select>
-                    <button class="btn btn-warning btn-sm" onclick="importDBFromExcel()">
-                        <i class="fas fa-upload"></i> Subir
-                    </button>
-                    <button class="btn btn-purple btn-sm" onclick="cleanAndMergeDuplicates()" title="Fusionar descripciones idénticas">
-                        <i class="fas fa-broom"></i> Unificar
-                    </button>
-                    <button class="btn btn-info btn-sm" onclick="syncDbToBank()" title="Actualizar precios del Banco con los de esta lista">
-                        <i class="fas fa-sync"></i> Sincronizar Banco
-                    </button>
+
+                    <div class="bulk-actions">
+                        <button class="btn btn-warning btn-sm" onclick="importDBFromExcel()">
+                            <i class="fas fa-upload"></i> Subir
+                        </button>
+                        <button class="btn btn-purple btn-sm" onclick="cleanAndMergeDuplicates()" title="Fusionar descripciones idénticas">
+                            <i class="fas fa-broom"></i> Unificar
+                        </button>
+                        <button class="btn btn-info btn-sm" onclick="syncDbToBank()" title="Actualizar precios del Banco con los de esta lista">
+                            <i class="fas fa-sync"></i> Sincronizar Banco
+                        </button>
+                    </div>
                 </div>
                 <p style="font-size: 0.8rem; color: #718096; margin-top: 8px;">
                     <i class="fas fa-sort"></i> Toca los títulos para ordenar. La numeración se auto-ajusta (1, 2, 3...) según el orden.
@@ -1013,5 +1050,4 @@
         }
     </script>
 </body>
-
 </html>

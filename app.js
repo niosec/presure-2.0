@@ -300,24 +300,43 @@ function loadFromStorage() {
 }
 
 // --- FUNCIONES DE NAVEGACIÓN Y RENDER (v1.3) ---
-
 function switchTab(tabId) {
+    // 1. Lógica visual de cambio de pestaña (Código original)
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    
     let pId = '';
     if (tabId === 'b1') pId = 'b1';
     else if (tabId === 'items') pId = 'items';
     else if (tabId === 'db') pId = 'db';
     else if (tabId === 'calc') pId = 'calc';
     else pId = 'config';
+    
     const targetPanel = document.getElementById('panel-' + pId);
     if(targetPanel) targetPanel.classList.add('active');
+    
     const tabs = document.querySelectorAll('.tab');
     if(tabId === 'b1') tabs[0].classList.add('active');
     if(tabId === 'items') tabs[1].classList.add('active');
     if(tabId === 'db') tabs[2].classList.add('active');
     if(tabId === 'calc') tabs[3].classList.add('active');
+    
     window.scrollTo(0, 0);
+
+    // --- CORRECCIÓN 5: Auto-foco Inteligente ---
+    setTimeout(() => {
+        if (tabId === 'items') {
+            // Foco en buscador del Banco
+            const searchInput = document.getElementById('main-bank-search');
+            if (searchInput) { searchInput.focus(); searchInput.select(); }
+        } else if (tabId === 'calc') {
+            // Foco en buscador de Calculadora
+            const searchInput = document.getElementById('calc-search-input');
+            if (searchInput) { searchInput.focus(); searchInput.select(); }
+        } else if (tabId === 'db') {
+            // Opcional: Si quisieras foco en insumos, pero como es tabla, mejor no molestar.
+        }
+    }, 150); // Pequeño retardo para dar tiempo a la animación CSS
 }
 
 function changePage(section, direction) {
@@ -2142,8 +2161,17 @@ function searchCalcItem() {
 
 function selectItemForCalc(item) {
     currentCalcItemData = JSON.parse(JSON.stringify(item));
-    document.getElementById('calc-selected-name').innerText = item.description;
-    document.getElementById('calc-selected-unit').innerText = item.unit;
+    
+    // Forzamos la actualización visual
+    const nameEl = document.getElementById('calc-selected-name');
+    const unitEl = document.getElementById('calc-selected-unit');
+    
+    if(nameEl) nameEl.textContent = item.description;
+    if(unitEl) unitEl.textContent = item.unit;
+    
+    // Opcional: Poner también el nombre en el buscador para que el usuario sepa qué buscó
+    document.getElementById('calc-search-input').value = item.description;
+
     recalcCalcTable();
 }
 
@@ -2247,8 +2275,19 @@ let currentReportFormat = 'pdf';
 
 function openReportModal() { 
     const input = document.getElementById('reportProjectName');
+    
+    // Valor por defecto si está vacío
     if(input && !input.value) input.value = "CONSTRUCCIÓN...";
+    
     document.getElementById('reportModal').style.display = 'block'; 
+
+    // Lógica de Foco: Pequeño retraso para asegurar que el modal sea visible
+    setTimeout(() => {
+        if(input) {
+            input.focus();  // Pone el cursor
+            input.select(); // Selecciona todo el texto para facilitar el reemplazo rápido
+        }
+    }, 100);
 }
 
 function closeReportModal() { document.getElementById('reportModal').style.display = 'none'; }
@@ -2874,6 +2913,72 @@ window.onload = function() {
     loadTheme();
     checkPwaInstall();
     document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+
+    // --- Lógica del Header Scroll & Nav Sticky ---
+    // --- Lógica Avanzada Header Scroll & Nav Sticky (Definitiva) ---
+    let lastScrollTop = 0;
+    const headerElement = document.querySelector('.app-header');
+    const navElement = document.querySelector('.app-nav'); 
+    
+    // Umbral para evitar rebotes (hysteresis)
+    const scrollThreshold = 5; 
+
+    function handleScroll() {
+        // 1. Si es móvil (< 769px), NO HACEMOS NADA. 
+        // El CSS con !important se encarga de forzarlo abajo.
+        if (window.innerWidth < 769) return;
+
+        const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+        
+        // Protección contra rebote en iOS (scroll negativo)
+        if (currentScroll <= 0) {
+            headerElement.classList.remove('header-hidden');
+            if(navElement) navElement.classList.remove('sticky-mode');
+            lastScrollTop = 0;
+            return;
+        }
+
+        // Si estamos muy arriba (cerca del tope), reseteamos todo a la posición original
+        // 60px es aprox la altura del header
+        if (currentScroll < 60) {
+            headerElement.classList.remove('header-hidden');
+            if(navElement) navElement.classList.remove('sticky-mode');
+            lastScrollTop = currentScroll;
+            return;
+        }
+
+        // Detectar dirección del scroll solo si supera el umbral
+        if (Math.abs(currentScroll - lastScrollTop) > scrollThreshold) {
+            if (currentScroll > lastScrollTop) {
+                // SCROLL HACIA ABAJO ->
+                // 1. Ocultar Header
+                headerElement.classList.add('header-hidden');
+                // 2. Subir Nav (activar clase sticky-mode que pone top: 15px)
+                if(navElement) navElement.classList.add('sticky-mode');
+            } else {
+                // SCROLL HACIA ARRIBA ->
+                // 1. Mostrar Header
+                headerElement.classList.remove('header-hidden');
+                // 2. Bajar Nav (quitar clase sticky-mode para volver a top: 75px)
+                if(navElement) navElement.classList.remove('sticky-mode');
+            }
+            lastScrollTop = currentScroll;
+        }
+    }
+
+    // Usar 'passive: true' mejora el rendimiento del scroll
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    // Limpieza de seguridad al redimensionar la ventana
+    // Esto arregla bugs si pasas de PC a modo Tablet/Móvil con la ventana
+    window.addEventListener('resize', function() {
+        if (window.innerWidth < 769) {
+            // Si pasamos a móvil, limpiamos clases de escritorio para evitar conflictos
+            if(headerElement) headerElement.classList.remove('header-hidden');
+            if(navElement) navElement.classList.remove('sticky-mode');
+        }
+    });
+
 };
 
 function initializeDefaultSettings() {
