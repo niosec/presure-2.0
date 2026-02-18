@@ -2,6 +2,7 @@
  * PresuRE v2.1 - Lógica completa fusionada
  * Contiene toda la funcionalidad de la v1.3 más el modo oscuro y PWA de la v2.0
  */
+
 // --- MOTOR DE SEGURIDAD (AES-GCM) V2 ---
 const SECURITY = {
     algo: 'AES-GCM',
@@ -2104,7 +2105,7 @@ async function exportProjectJSON() {
         fileName = `Proy_${pName}_${dia}${mes}${año}${fileExt}`;
     }
 
-    const blob = new Blob([finalContent], { type: "application/octet-stream" });
+    const blob = new Blob([finalContent], { type: "application/json;charset=utf-8" });
     saveAs(blob, fileName);
     
     showToast(`Guardado: ${fileName}`);
@@ -2215,7 +2216,7 @@ async function exportBankJSON() {
         fileName = `Banco_Items_${dia}${mes}${año}.json`;
     }
 
-    const blob = new Blob([finalContent], { type: "application/octet-stream" });
+    const blob = new Blob([finalContent], { type: "application/json;charset=utf-8" });
     saveAs(blob, fileName);
     showToast("Banco exportado.");
 }
