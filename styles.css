@@ -195,11 +195,13 @@ body {
     }
     
     /* El botón de instalar también solo icono */
+    /* 3. Ajuste para el botón "Instalar" (para que destaque un poco más si deseas, o déjalo igual) */
     #install-btn {
-        font-size: 0 !important;
-        width: 38px;
-        padding: 0 !important;
-        justify-content: center;
+        border: 1px solid rgba(255,255,255,0.3) !important; /* Un borde muy sutil */
+        background: rgba(255,255,255,0.05) !important;
+    }
+    #install-btn:hover {
+        background: rgba(255,255,255,0.2) !important;
     }
     #install-btn i {
         font-size: 1.1rem !important;
@@ -270,23 +272,27 @@ body {
     box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
 }
 /* Header actions unificadas */
+/* 1. Estado Base: Transparente y limpio */
 .header-actions .btn {
-    background: rgba(255, 255, 255, 0.15); /* Transparente en header */
-    backdrop-filter: blur(4px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #ffffff !important;
+    background: transparent !important;       /* Quita el fondo grisáceo/blur */
+    border: 1px solid transparent !important; /* Quita el borde visible */
+    box-shadow: none !important;              /* Quita la sombra */
+    color: rgba(255, 255, 255, 0.9) !important; /* Blanco ligeramente suave */
+    font-weight: 500;
+    transition: all 0.2s ease;
 }
+
+/* 2. Estado Hover: Reacción suave al pasar el mouse */
 .header-actions .btn:hover {
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.15) !important; /* Fondo blanco sutil */
+    color: #ffffff !important; /* Blanco brillante */
+    transform: translateY(-1px);
 }
 .btn-danger { background: var(--danger); }
 .btn-warning { background: var(--warning); color: #1a202c; }
 .btn-secondary { background: #718096; }
 .btn-purple { background: var(--purple); }
 .btn-info { background: #4299e1; }
-.btn-whatsapp { background-color: #25D366; }
-.btn-pdf { background-color: #FF0000; }
-.btn-excel { background-color: #217346; }
 
 .icon-btn {
     background: none;
@@ -925,39 +931,6 @@ footer {
     .conflict-options { grid-template-columns: 1fr 1fr; }
 }
 
-/* Scrollbar para Firefox */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--scroll-thumb) var(--scroll-track);
-}
-
-/* Scrollbar para Chrome, Edge, Safari */
-*::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-*::-webkit-scrollbar-track {
-  background: var(--scroll-track);
-  border-radius: 4px;
-}
-
-*::-webkit-scrollbar-thumb {
-  background: var(--scroll-thumb);
-  border-radius: 4px;
-  border: 2px solid transparent;
-  background-clip: padding-box; /* Evita que el borde tape el fondo */
-}
-
-*::-webkit-scrollbar-thumb:hover {
-  background: var(--scroll-thumb-hover);
-  background-clip: padding-box;
-}
-
-*::-webkit-scrollbar-corner {
-  background: transparent;
-}
-
 /* --- Clases de Utilidad para JS (Cruciales para Dark Mode) --- */
 .row-highlight { background-color: var(--bg-highlight) !important; }
 .row-success { background-color: var(--bg-success-light) !important; }
@@ -1148,16 +1121,41 @@ body { padding-bottom: 60px; }
     .nav-label { font-size: 0.9rem; }
     .nav-icon { font-size: 1rem; margin-bottom: 0; }
     
-    .nav-item:hover:not(.active) { background-color: rgba(0,0,0,0.04); color: var(--text-primary); }
-    
-    .nav-item.active {
-        background-color: var(--primary);
-        color: #ffffff !important;
-        font-weight: 600;
-        box-shadow: 0 2px 10px rgba(37, 99, 235, 0.3);
+    .nav-item { 
+        /* Aseguramos que tenga borde transparente para evitar saltos al activar */
+        border: 1px solid transparent; 
+        color: var(--text-secondary);
+        background: transparent;
     }
-    .nav-item.active .nav-icon { transform: none; font-size: 1rem; }
-    [data-theme="dark"] .nav-item.active { background-color: var(--accent); }
+    
+    .nav-item:hover:not(.active) { 
+        background-color: rgba(0,0,0,0.03); 
+        color: var(--primary); 
+    }
+
+    /* NUEVO ESTILO ACTIVO: Resaltar Texto e Icono (Sin relleno sólido) */
+    .nav-item.active {
+        background-color: var(--bg-highlight) !important; /* Fondo muy suave (casi blanco/azul claro) */
+        color: var(--primary) !important;                 /* El texto e icono se vuelven AZULES */
+        font-weight: 700;                                 /* Texto más grueso */
+        border: 1px solid var(--primary);                 /* Borde fino del color principal */
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15) !important; /* Sombra suave coloreada */
+        transform: translateY(-1px);
+    }
+
+    /* Ajuste específico para el icono cuando está activo */
+    .nav-item.active .nav-icon { 
+        transform: scale(1.1); /* Hacer el icono un poquito más grande */
+        font-size: 1.1rem; 
+    }
+
+    /* AJUSTE MODO OSCURO (Dentro de la media query) */
+    [data-theme="dark"] .nav-item.active { 
+        background-color: rgba(59, 130, 246, 0.15) !important; /* Azul oscuro transparente */
+        color: #60a5fa !important;       /* Azul claro brillante para texto */
+        border-color: #60a5fa;           /* Borde azul claro */
+        box-shadow: 0 4px 12px rgba(96, 165, 250, 0.2) !important; /* Resplandor suave */
+    }
 }
 
 /* --- ESTILOS PARA EL MODAL DE REPORTES (Matriz 3x2) --- */

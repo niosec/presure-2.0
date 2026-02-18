@@ -43,7 +43,6 @@ let editorContext = null;
 let currentEditId = null;
 let editorBackup = null;
 let isCreatingNew = false;
-let lastToastTime = 0;
 
 let dbSortState = {
     materiales: { field: 'desc', dir: 1 },
@@ -65,7 +64,6 @@ let currentPage = {
 const itemsPerPage = 50;
 let saveTimeout;
 
-let editorSourceArray = [];
 let currentEditField = null;
 let currentEditRow = null;
 let currentEditType = null;
@@ -323,7 +321,7 @@ function switchTab(tabId) {
     
     window.scrollTo(0, 0);
 
-    // --- CORRECCIÓN 5: Auto-foco Inteligente ---
+    // --- Auto-foco Inteligente ---
     setTimeout(() => {
         if (tabId === 'items') {
             // Foco en buscador del Banco
@@ -2969,15 +2967,9 @@ window.onload = function() {
     // Usar 'passive: true' mejora el rendimiento del scroll
     window.addEventListener('scroll', handleScroll, { passive: true });
 
-    // Limpieza de seguridad al redimensionar la ventana
-    // Esto arregla bugs si pasas de PC a modo Tablet/Móvil con la ventana
-    window.addEventListener('resize', function() {
-        if (window.innerWidth < 769) {
-            // Si pasamos a móvil, limpiamos clases de escritorio para evitar conflictos
-            if(headerElement) headerElement.classList.remove('header-hidden');
-            if(navElement) navElement.classList.remove('sticky-mode');
-        }
-    });
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js');
+    }
 
 };
 
@@ -2985,85 +2977,3 @@ function initializeDefaultSettings() {
     if (!appData.settings.numberFormat) appData.settings.numberFormat = detectUserLocale();
     saveData();
 }
-
-// Hacer funciones globales
-window.switchTab = switchTab;
-window.changePage = changePage;
-window.createEmptyItemB1 = createEmptyItemB1;
-window.duplicateProjectItem = duplicateProjectItem;
-window.deleteProjectItem = deleteProjectItem;
-window.saveProjectItemToBank = saveProjectItemToBank;
-window.editItem = editItem;
-window.openItemBankModalForSelect = openItemBankModalForSelect;
-window.addSingleItemToProject = addSingleItemToProject;
-window.openResourceModal = openResourceModal;
-window.quickCreateResource = quickCreateResource;
-window.closeResourceModal = closeResourceModal;
-window.filterModalList = filterModalList;
-window.resolveConflict = resolveConflict;
-window.closeConfigModal = closeConfigModal;
-window.openConfigModal = openConfigModal;
-window.saveSettings = saveSettings;
-window.exportB1ToExcel = exportB1ToExcel;
-window.openSaveOptionsModal = openSaveOptionsModal;
-window.exportProjectJSON = exportProjectJSON;
-window.exportBudgetOnlyJSON = exportBudgetOnlyJSON;
-window.loadProjectJSON = loadProjectJSON;
-window.openDeleteModal = openDeleteModal;
-window.closeDeleteModal = closeDeleteModal;
-window.clearBudgetOnly = clearBudgetOnly;
-window.confirmFullReset = confirmFullReset;
-window.exportBankJSON = exportBankJSON;
-window.importBankJSON = importBankJSON;
-window.openReportModal = openReportModal;
-window.closeReportModal = closeReportModal;
-window.setReportFormat = setReportFormat;
-window.generateSelectedReport = generateSelectedReport;
-window.addDbRow = addDbRow;
-window.toggleDbSort = toggleDbSort;
-window.handleDescEnter = handleDescEnter;
-window.updateDbItem = updateDbItem;
-window.deleteDbItem = deleteDbItem;
-window.importDBFromExcel = importDBFromExcel;
-window.cleanAndMergeDuplicates = cleanAndMergeDuplicates;
-window.syncDbToBank = syncDbToBank;
-window.openInsumosModal = openInsumosModal;
-window.closeInsumosModal = closeInsumosModal;
-window.toggleInsumoSelection = toggleInsumoSelection;
-window.toggleSelectAllInsumos = toggleSelectAllInsumos;
-window.updatePrecioInsumo = updatePrecioInsumo;
-window.aplicarPreciosEditados = aplicarPreciosEditados;
-window.exportInsumosToExcel = exportInsumosToExcel;
-window.initiateUnification = initiateUnification;
-window.toggleUnifyDetails = toggleUnifyDetails;
-window.closeUnifyModal = closeUnifyModal;
-window.executeUnification = executeUnification;
-window.updateProjectItem = updateProjectItem;
-window.handleMathInput = handleMathInput;
-window.autoformatInput = autoformatInput;
-window.updateRes = updateRes;
-window.removeRes = removeRes;
-window.navigateEditor = navigateEditor;
-window.discardEditor = discardEditor;
-window.closeEditor = closeEditor;
-window.searchCalcItem = searchCalcItem;
-window.recalcCalcTable = recalcCalcTable;
-window.updateCalcValue = updateCalcValue;
-window.printCalcReport = printCalcReport;
-window.solveMathExpression = solveMathExpression;
-window.parseNumber = parseNumber;
-window.fmt = fmt;
-window.addModule = addModule;
-window.renameCurrentModule = renameCurrentModule;
-window.cloneCurrentModule = cloneCurrentModule;
-window.deleteCurrentModule = deleteCurrentModule;
-window.filterBankModal = filterBankModal;
-window.toggleBankSelection = toggleBankSelection;
-window.toggleSelectAllBank = toggleSelectAllBank;
-window.addSelectedBankItems = addSelectedBankItems;
-window.closeBankModal = closeBankModal;
-window.importBudgetFromExcel = importBudgetFromExcel;
-window.importComplexAPUReport = importComplexAPUReport;
-window.calculateUnitPrice = calculateUnitPrice;
-window.renderAPUTables = renderAPUTables;
-window.updateEditorMeta = updateEditorMeta;

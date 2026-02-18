@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PresuRE v2.0</title>
     
     <meta name="theme-color" content="#1a365d">
@@ -37,12 +37,12 @@
                 <span id="save-indicator" class="status-dot" title="Estado de guardado"></span>
             </div>
             <div class="header-actions">
-                <button id="theme-toggle" class="icon-btn"><i class="fas fa-moon"></i></button> <!-- Modo oscuro y claro -->
                 <button class="btn btn-secondary" onclick="document.getElementById('fileProject').click()"><i class="fas fa-folder-open"></i> Abrir</button>
                 <button class="btn btn-success" onclick="openSaveOptionsModal()"><i class="fas fa-save"></i> Guardar</button>
                 <button class="btn btn-secondary" onclick="openConfigModal()" title="Configuración"><i class="fas fa-cog"></i> Configuración</button>
                 <button class="btn btn-info" onclick="openReportModal()" title="Generar Reportes"><i class="fas fa-print"></i> Reportes</button>
                 <button class="btn btn-danger" onclick="openDeleteModal()" title="Opciones de Borrado"><i class="fas fa-trash-alt"></i> Borrar</button>
+                <button id="theme-toggle" class="icon-btn"><i class="fas fa-moon"></i></button> <!-- Modo oscuro y claro -->
         
                 <button id="install-btn" class="install-btn hidden"><i class="fas fa-download"></i> Instalar</button>
                 <input type="file" id="fileProject" accept=".json,application/json,text/json,text/plain" style="display:none" onchange="loadProjectJSON(this)">
@@ -1038,13 +1038,6 @@
     <div id="pwa-toast"></div>
 
     <script src="app.js"></script>
-    
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js');
-            });
-        }
-    </script>
+
 </body>
 </html>
