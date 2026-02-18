@@ -1,99 +1,7 @@
 /**
- * PresuRE v2.1 - Lógica completa fusionada
+ * PresuRE v2.0 - Lógica completa fusionada
  * Contiene toda la funcionalidad de la v1.3 más el modo oscuro y PWA de la v2.0
  */
-
-// --- MOTOR DE SEGURIDAD (AES-GCM) V2 ---
-const SECURITY = {
-    algo: 'AES-GCM',
-    length: 256,
-    saltLen: 16,
-    ivLen: 12,
-    iter: 100000
-};
-
-// Utilidades de conversión (ArrayBuffer <-> Base64)
-const ab2str = (buf) => {
-    let binary = '';
-    const bytes = new Uint8Array(buf);
-    for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
-    return window.btoa(binary);
-};
-
-const str2ab = (str) => {
-    const binary_string = window.atob(str);
-    const len = binary_string.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i++) bytes[i] = binary_string.charCodeAt(i);
-    return bytes.buffer;
-};
-
-// Generar llave derivada de contraseña
-async function generateKey(password, salt) {
-    if (!window.crypto || !window.crypto.subtle) {
-        alert("ERROR CRÍTICO: Tu navegador bloquea la encriptación.\n\nAsegúrate de usar 'localhost' o 'https://'.\nLa encriptación no funciona con doble clic en el archivo (file://).");
-        throw new Error("Crypto API not available");
-    }
-    const enc = new TextEncoder();
-    const keyMaterial = await window.crypto.subtle.importKey(
-        "raw", enc.encode(password), { name: "PBKDF2" }, false, ["deriveKey"]
-    );
-    return window.crypto.subtle.deriveKey(
-        { name: "PBKDF2", salt: salt, iterations: SECURITY.iter, hash: "SHA-256" },
-        keyMaterial, { name: SECURITY.algo, length: SECURITY.length }, false, ["encrypt", "decrypt"]
-    );
-}
-
-// Encriptar Datos
-async function encryptData(dataObject, password) {
-    try {
-        const salt = window.crypto.getRandomValues(new Uint8Array(SECURITY.saltLen));
-        const iv = window.crypto.getRandomValues(new Uint8Array(SECURITY.ivLen));
-        const key = await generateKey(password, salt);
-        
-        const contentStr = JSON.stringify(dataObject);
-        const contentEncoded = new TextEncoder().encode(contentStr);
-        
-        const encryptedContent = await window.crypto.subtle.encrypt(
-            { name: SECURITY.algo, iv: iv }, key, contentEncoded
-        );
-
-        return JSON.stringify({
-            _secure: true, // Marca de archivo seguro
-            v: 2,
-            salt: ab2str(salt),
-            iv: ab2str(iv),
-            content: ab2str(encryptedContent)
-        });
-    } catch (e) {
-        console.error("Error encriptando:", e);
-        throw e;
-    }
-}
-
-// Desencriptar Datos
-async function decryptData(encryptedJsonString, password) {
-    try {
-        const pkg = JSON.parse(encryptedJsonString);
-        if (!pkg._secure) return pkg; // Si no es seguro, devolver tal cual
-
-        const salt = str2ab(pkg.salt);
-        const iv = str2ab(pkg.iv);
-        const content = str2ab(pkg.content);
-        
-        const key = await generateKey(password, salt);
-
-        const decryptedBuffer = await window.crypto.subtle.decrypt(
-            { name: SECURITY.algo, iv: iv }, key, content
-        );
-        
-        const decryptedStr = new TextDecoder().decode(decryptedBuffer);
-        return JSON.parse(decryptedStr);
-    } catch (e) {
-        console.error("Fallo desencriptación:", e);
-        throw new Error("Clave incorrecta o archivo dañado");
-    }
-}
 
 // --- CONSTANTES ---
 const STORAGE_KEY = 'costos_bolivia_data';
@@ -166,7 +74,7 @@ let selectedBankIds = new Set();
 // Variables para PWA (v2.0)
 let deferredPrompt;
 
-// --- FUNCIONES AUXILIARES ---
+// --- FUNCIONES AUXILIARES (v1.3) ---
 
 function escapeHtml(text) {
     if (text == null) return "";
@@ -2072,105 +1980,15 @@ async function exportB1ToExcel() {
     });
 }
 
-// --- EXPORTAR PROYECTO (.presu) ---
-async function exportProjectJSON() {
-    const useEncryption = confirm("¿Deseas proteger este archivo con contraseña?\n\n- Aceptar: Guardar ENCRIPTADO (.presu)\n- Cancelar: Guardar SIMPLE (.json)");
+// --- EXPORTACIÓN JSON ---
 
-    let finalContent = "";
-    let fileName = "";
-    let fileExt = "";
-    
-    const ahora = new Date(); 
-    const dia = String(ahora.getDate()).padStart(2, '0'); 
-    const mes = String(ahora.getMonth() + 1).padStart(2, '0'); 
-    const año = ahora.getFullYear();
-    const pName = (appData.modules[0] ? appData.modules[0].name.substring(0, 10) : "Proyecto").replace(/[^a-z0-9]/gi, '_');
-
-    if (useEncryption) {
-        const password = prompt("🔐 Crea una contraseña para este archivo .presu:\n(Si la olvidas, perderás los datos)");
-        if (!password) { showToast("Cancelado por el usuario."); return; }
-        
-        showToast("Encriptando...");
-        try {
-            finalContent = await encryptData(appData, password);
-            fileExt = ".presu";
-            fileName = `RESG_${pName}_${dia}${mes}${año}${fileExt}`;
-        } catch (e) {
-            alert("Error: No se pudo encriptar. Verifica que estés usando HTTPS o localhost.");
-            return;
-        }
-    } else {
-        finalContent = JSON.stringify(appData);
-        fileExt = ".json";
-        fileName = `Proy_${pName}_${dia}${mes}${año}${fileExt}`;
-    }
-
-    const blob = new Blob([finalContent], { type: "application/json;charset=utf-8" });
-    saveAs(blob, fileName);
-    
-    showToast(`Guardado: ${fileName}`);
-    const modal = document.getElementById('saveOptionsModal');
-    if(modal) modal.style.display = 'none';
-}
-
-// --- IMPORTAR PROYECTO (.presu / .json) ---
-function loadProjectJSON(input) {
-    const file = input.files[0];
-    if (!file) return;
-    
-    const reader = new FileReader();
-    reader.onload = async function(e) { 
-        try { 
-            const rawContent = e.target.result;
-            let loadedData = null;
-            
-            // Verificación preliminar
-            let isEncrypted = false;
-            try {
-                const check = JSON.parse(rawContent);
-                if (check._secure) isEncrypted = true;
-                else loadedData = check;
-            } catch (err) {
-                alert("El archivo está dañado o no es un formato válido.");
-                return;
-            }
-
-            if (isEncrypted) {
-                const password = prompt("🔒 Archivo Protegido (.presu)\nIngrese la contraseña:");
-                if (!password) { input.value = ''; return; }
-
-                showToast("Desencriptando...");
-                try {
-                    loadedData = await decryptData(rawContent, password);
-                } catch (cryptoError) {
-                    alert("⛔ Contraseña incorrecta.");
-                    input.value = '';
-                    return;
-                }
-            }
-
-            // Cargar datos en la App
-            if (loadedData) {
-                appData = { ...appData, ...loadedData };
-                
-                // Reparar estructuras si faltan
-                if (!appData.activeModuleId && appData.modules.length > 0) appData.activeModuleId = appData.modules[0].id;
-                if (!appData.database) appData.database = { materiales: [], mano_obra: [], equipos: [] };
-                
-                saveData();
-                renderB1(); renderBankList(); renderDBTables(); loadSettingsToUI();
-                if(editorContext) closeEditor();
-                switchTab('b1');
-                showToast("✅ Proyecto cargado correctamente"); 
-            }
-
-        } catch(err) { 
-            console.error(err); 
-            showToast("Error crítico al procesar el archivo."); 
-        }
-        input.value = '';
-    };
-    reader.readAsText(file);
+function exportProjectJSON() {
+    const s = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData));
+    const dl = document.createElement('a'); dl.href = s;
+    const ahora = new Date(); const dia = String(ahora.getDate()).padStart(2, '0'); const mes = String(ahora.getMonth() + 1).padStart(2, '0'); const año = ahora.getFullYear();
+    dl.download = `Proy_Save_${dia}${mes}${año}.json`;
+    dl.click();
+    showToast('Proyecto guardado');
 }
 
 function openSaveOptionsModal() {
@@ -2187,108 +2005,67 @@ function exportBudgetOnlyJSON() {
     showToast('Presupuesto exportado (sin BD)');
 }
 
-// --- EXPORTAR BANCO (.presudb) ---
-async function exportBankJSON() {
-    // Preguntar seguridad
-    const useEncryption = confirm("¿Encriptar Banco de Ítems?\n\n- Aceptar: Archivo Seguro (.presudb)\n- Cancelar: Archivo Plano (.json)");
-    
-    let finalContent = "";
-    let fileName = "";
-    const ahora = new Date(); 
-    const dia = String(ahora.getDate()).padStart(2, '0'); 
-    const mes = String(ahora.getMonth() + 1).padStart(2, '0'); 
-    const año = ahora.getFullYear();
-
-    if (useEncryption) {
-        const password = prompt("🔐 Crea una contraseña para el Banco:");
-        if (!password) return;
-
-        try {
-            // Encriptamos SOLO el array del banco
-            finalContent = await encryptData(appData.itemBank, password);
-            fileName = `Banco_Items_${dia}${mes}${año}.presudb`;
-        } catch (e) {
-            alert("Error de encriptación (Revisa HTTPS).");
-            return;
-        }
-    } else {
-        finalContent = JSON.stringify(appData.itemBank);
-        fileName = `Banco_Items_${dia}${mes}${año}.json`;
-    }
-
-    const blob = new Blob([finalContent], { type: "application/json;charset=utf-8" });
-    saveAs(blob, fileName);
-    showToast("Banco exportado.");
-}
-
-// --- IMPORTAR BANCO (.presudb / .json) ---
-function importBankJSON(input) {
+function loadProjectJSON(input) {
     const file = input.files[0];
     if (!file) return;
-
+    const fileName = file.name.toLowerCase();
+    const isValidExtension = fileName.endsWith('.json');
+    const isValidMimeType = file.type === 'application/json' || file.type === 'text/json' || file.type === 'text/plain' || file.type === '';
+    if (!isValidExtension && !isValidMimeType) { showToast('Por favor, seleccione un archivo JSON válido.'); input.value = ''; return; }
     const reader = new FileReader();
-    reader.onload = async function(e) {
+    reader.onload = function(e) { 
         try { 
-            const rawContent = e.target.result;
-            let loadedBank = null;
-            let isEncrypted = false;
-
-            // Detectar si está encriptado
-            try {
-                const check = JSON.parse(rawContent);
-                if (check._secure) isEncrypted = true;
-                else loadedBank = check;
-            } catch (err) {
-                showToast("Archivo inválido"); return;
-            }
-
-            if (isEncrypted) {
-                const password = prompt("🔒 Importando Banco Protegido (.presudb)\nContraseña:");
-                if (!password) { input.value = ''; return; }
-
-                try {
-                    loadedBank = await decryptData(rawContent, password);
-                } catch (err) {
-                    alert("⛔ Contraseña incorrecta.");
-                    input.value = '';
-                    return;
-                }
-            }
-
-            // Procesar el array importado
-            if(Array.isArray(loadedBank)) {
-                let apuCount = 0; 
-                let insumosCount = 0;
-                
-                loadedBank.forEach((i, index) => { 
-                    // Generar nuevos IDs para evitar colisiones
-                    i.id = Date.now() + Math.floor(Math.random() * 10000) + index; 
-                    // Si el código ya existe, calculamos uno nuevo
-                    i.code = getNextBankCode(); 
-                    
-                    appData.itemBank.push(i); 
-                    apuCount++;
-
-                    // Sincronizar insumos nuevos a la BD
-                    if (i.materiales) i.materiales.forEach(res => { if(syncImportedResourceToDB('materiales', res) === 'new') insumosCount++; });
-                    if (i.mano_obra) i.mano_obra.forEach(res => { if(syncImportedResourceToDB('mano_obra', res) === 'new') insumosCount++; });
-                    if (i.equipos) i.equipos.forEach(res => { if(syncImportedResourceToDB('equipos', res) === 'new') insumosCount++; });
-                });
-
-                saveData();
-                renderBankList(); 
-                renderDBTables();
-                showToast(`Importado: ${apuCount} APUs y ${insumosCount} insumos.`);
-            } else {
-                alert("El archivo desencriptado no contiene una lista de ítems válida.");
-            }
-        } catch(e) { 
-            console.error(e); 
-            showToast("Error al importar banco."); 
+            const loadedData = JSON.parse(e.target.result);
+            appData = { ...appData, ...loadedData };
+            if (!appData.activeModuleId && appData.modules.length > 0) appData.activeModuleId = appData.modules[0].id;
+            if (!appData.database) appData.database = { materiales: [], mano_obra: [], equipos: [] };
+            saveData();
+            renderB1(); renderBankList(); renderDBTables(); loadSettingsToUI();
+            switchTab('b1');
+            showToast("Proyecto cargado correctamente"); 
+        } catch(err) { 
+            console.error(err); showToast("Error al leer el archivo JSON. Verifique que el archivo sea válido."); 
         }
         input.value = '';
     };
     reader.readAsText(file);
+}
+
+function exportBankJSON() {
+    const s = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData.itemBank));
+    const dl = document.createElement('a'); dl.href = s;
+    const ahora = new Date(); const dia = String(ahora.getDate()).padStart(2, '0'); const mes = String(ahora.getMonth() + 1).padStart(2, '0'); const año = ahora.getFullYear();
+    dl.download = `BD_${dia}${mes}${año}.json`;
+    dl.click();
+    showToast('Banco exportado');
+}
+
+function importBankJSON(input) {
+    const r = new FileReader();
+    r.onload = function(e) {
+        try { 
+            let loaded = JSON.parse(e.target.result);
+            if(Array.isArray(loaded)) {
+                let apuCount = 0; let insumosCount = 0;
+                loaded.forEach((i, index) => { 
+                    i.code = getNextBankCode(); 
+                    i.id = Date.now() + Math.floor(Math.random() * 1000) + index; 
+                    appData.itemBank.push(i); 
+                    apuCount++;
+                    if (i.materiales && Array.isArray(i.materiales)) i.materiales.forEach(res => { const result = syncImportedResourceToDB('materiales', res); if (result === 'new') insumosCount++; });
+                    if (i.mano_obra && Array.isArray(i.mano_obra)) i.mano_obra.forEach(res => { const result = syncImportedResourceToDB('mano_obra', res); if (result === 'new') insumosCount++; });
+                    if (i.equipos && Array.isArray(i.equipos)) i.equipos.forEach(res => { const result = syncImportedResourceToDB('equipos', res); if (result === 'new') insumosCount++; });
+                });
+                saveData();
+                renderBankList(); renderDBTables();
+                showToast(`Importado: ${apuCount} APUs y ${insumosCount} insumos nuevos`);
+            }
+        } catch(e) { 
+            console.error(e); showToast("Error al leer el archivo JSON o formato incorrecto"); 
+        }
+        input.value = '';
+    };
+    r.readAsText(input.files[0]);
 }
 
 function importDBFromExcel() {
