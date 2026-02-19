@@ -195,13 +195,11 @@ body {
     }
     
     /* El botón de instalar también solo icono */
-    /* 3. Ajuste para el botón "Instalar" (para que destaque un poco más si deseas, o déjalo igual) */
     #install-btn {
-        border: 1px solid rgba(255,255,255,0.3) !important; /* Un borde muy sutil */
-        background: rgba(255,255,255,0.05) !important;
-    }
-    #install-btn:hover {
-        background: rgba(255,255,255,0.2) !important;
+        font-size: 0 !important;
+        width: 38px;
+        padding: 0 !important;
+        justify-content: center;
     }
     #install-btn i {
         font-size: 1.1rem !important;
