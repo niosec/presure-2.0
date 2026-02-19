@@ -195,17 +195,38 @@ body {
     }
     
     /* El botón de instalar también solo icono */
-    /* 3. Ajuste para el botón "Instalar" (para que destaque un poco más si deseas, o déjalo igual) */
     #install-btn {
-        border: 1px solid rgba(255,255,255,0.3) !important; /* Un borde muy sutil */
-        background: rgba(255,255,255,0.05) !important;
+        /* Forzar tamaño de botón circular igual a los demás */
+        width: 38px !important;
+        height: 38px !important;
+        min-height: 38px !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        
+        /* Ocultar el texto "Instalar" dejando solo el icono */
+        font-size: 0 !important;
+        
+        /* Colores: Transparente con borde sutil blanco */
+        background: transparent !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        color: white !important;
+        
+        /* Flexbox para centrar el icono */
+        display: inline-flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 0 !important;
     }
-    #install-btn:hover {
-        background: rgba(255,255,255,0.2) !important;
-    }
+
     #install-btn i {
+        /* Asegurar que el icono sea visible y blanco */
         font-size: 1.1rem !important;
+        color: #ffffff !important;
         margin: 0 !important;
+    }
+
+    #install-btn:hover {
+        background-color: rgba(255, 255, 255, 0.15) !important;
     }
 
     /* Ajustar logo y título en móviles */
@@ -308,10 +329,11 @@ body {
 .icon-btn:hover { background-color: rgba(255,255,255,0.1); }
 
 .install-btn {
-    background-color: var(--bg-card); /* Se adapta al tema (blanco u oscuro) */
-    color: var(--primary);            /* Texto azul adaptable */
-    border: 1px solid var(--border-color); /* Borde sutil */
-    padding: 8px 16px;
+    /* Escritorio: Fondo blanco (bg-card), Texto Azul (primary) */
+    background-color: var(--bg-card); 
+    color: var(--primary);            
+    border: 1px solid var(--border-color);
+    padding: 8px 16px; /* Pill shape en escritorio */
     border-radius: 20px;
     font-weight: bold;
     cursor: pointer;
@@ -319,12 +341,12 @@ body {
     align-items: center;
     gap: 8px;
     font-size: 0.9rem;
-    transition: transform 0.2s, background-color 0.3s;
+    transition: all 0.2s ease;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 .install-btn i {
-    color: var(--primary); /* El icono sigue al color del texto */
+    color: inherit; 
 }
 
 /* Hover específico para dar feedback */
