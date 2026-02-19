@@ -2860,23 +2860,59 @@ function updateThemeIcon(isDark) {
 }
 
 // --- PWA INSTALL (v2.0) ---
-
 function checkPwaInstall() {
+    // 1. Verificar si la App YA está ejecutándose en modo instalado (Standalone)
+    // Si ya es una PWA instalada, ocultamos el botón inmediatamente y salimos.
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+        document.getElementById('install-btn').classList.add('hidden');
+        return; 
+    }
+
+    // 2. Escuchar si el navegador permite instalar (Muestra el botón)
     window.addEventListener('beforeinstallprompt', (e) => {
+        // Prevenir que el navegador muestre su propio banner automáticamente
         e.preventDefault();
+        // Guardar el evento para dispararlo cuando el usuario toque el botón
         deferredPrompt = e;
+        // Mostrar nuestro botón personalizado
         document.getElementById('install-btn').classList.remove('hidden');
     });
+
+    // 3. Escuchar cuando la instalación se ha COMPLETADO con éxito
+    window.addEventListener('appinstalled', () => {
+        // Ocultar el botón inmediatamente
+        document.getElementById('install-btn').classList.add('hidden');
+        // Limpiar la variable
+        deferredPrompt = null;
+        console.log('PWA instalada correctamente');
+    });
+
+    // 4. Lógica del clic en el botón
     document.getElementById('install-btn').addEventListener('click', async () => {
         if (!deferredPrompt) return;
+        
+        // Mostrar el prompt nativo del sistema
         deferredPrompt.prompt();
+        
+        // Esperar a que el usuario decida
         const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') document.getElementById('install-btn').classList.add('hidden');
+        console.log(`El usuario decidió: ${outcome}`);
+        
+        // Si aceptó, ocultamos el botón (aunque el evento 'appinstalled' lo hará también por seguridad)
+        if (outcome === 'accepted') {
+            document.getElementById('install-btn').classList.add('hidden');
+        }
+        
         deferredPrompt = null;
     });
+
+    // 5. Lógica para iOS (iPhone/iPad)
     const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
     const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
-    if (isIos && !isStandalone) showIosInstallToast();
+    
+    if (isIos && !isStandalone) {
+        showIosInstallToast();
+    }
 }
 
 function showIosInstallToast() {
