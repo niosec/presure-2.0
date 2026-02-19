@@ -196,10 +196,16 @@ body {
     
     /* El botón de instalar también solo icono */
     #install-btn {
-        font-size: 0 !important;
-        width: 40px;
-        padding: 0 !important;
+        font-size: 0 !important; /* Oculta el texto */
+        padding: 0 !important;   /* Resetea padding */
+        width: 38px;             /* Ancho fijo cuadrado/redondo */
+        height: 38px;
+        min-height: 38px;
+        border-radius: 50%;      /* Los hace circulares */
+        display: inline-flex;
+        align-items: center;
         justify-content: center;
+        gap: 0 !important;
     }
     #install-btn i {
         font-size: 1.1rem !important;
