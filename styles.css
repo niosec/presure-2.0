@@ -197,7 +197,7 @@ body {
     /* El botón de instalar también solo icono */
     #install-btn {
         font-size: 0 !important;
-        width: 38px;
+        width: 40px;
         padding: 0 !important;
         justify-content: center;
     }
