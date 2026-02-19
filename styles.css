@@ -292,6 +292,7 @@ body {
     color: #ffffff !important; /* Blanco brillante */
     transform: translateY(-1px);
 }
+/**/
 .btn-danger { background: var(--danger); }
 .btn-warning { background: var(--warning); color: #1a202c; }
 .btn-secondary { background: #718096; }

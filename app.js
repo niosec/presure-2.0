@@ -326,7 +326,7 @@ function switchTab(tabId) {
         if (tabId === 'items') {
             // Foco en buscador del Banco
             const searchInput = document.getElementById('main-bank-search');
-            if (searchInput) { searchInput.focus(); searchInput.select(); }
+            //if (searchInput) { searchInput.focus(); searchInput.select(); }//
         } else if (tabId === 'calc') {
             // Foco en buscador de Calculadora
             const searchInput = document.getElementById('calc-search-input');
@@ -1085,7 +1085,7 @@ function openItemBankModalForSelect() {
     selectedBankIds.clear();
     document.getElementById('bankModal').style.display = 'block';
     document.getElementById('bank-search').value = '';
-    document.getElementById('bank-search').focus();
+    //document.getElementById('bank-search').focus();//
     filterBankModal();
 }
 
@@ -2282,7 +2282,7 @@ function openReportModal() {
     // Lógica de Foco: Pequeño retraso para asegurar que el modal sea visible
     setTimeout(() => {
         if(input) {
-            input.focus();  // Pone el cursor
+            ///input.focus();  // Pone el cursor
             input.select(); // Selecciona todo el texto para facilitar el reemplazo rápido
         }
     }, 100);
